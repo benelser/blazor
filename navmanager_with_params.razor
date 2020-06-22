@@ -1,0 +1,26 @@
+@page "/counter"
+@page "/counter/{number:int}"
+@inject NavigationManager NavManager // allows us to navigate to url based off of prefix or base url
+
+<h1>Current number selected: @number</h1>
+
+@foreach (int num in Numbers)
+{
+    <button class="btn btn-primary" @onclick=@(() => NavManager.NavigateTo($"counter/{@num}"))>@num</button>
+}
+<button class="btn btn-primary" @onclick=@ResetNumber>Reset</button>
+
+<button class="btn btn-primary" @onclick=@(() => NavManager.NavigateTo("https://google.com"))>Google</button>
+
+@code {
+    private int[] Numbers = { 1,2,3,4,5};
+    // Defines page paramter
+    [Parameter]
+    public int number { get; set; }
+
+    private void ResetNumber()
+    {
+        this.number = 0;
+        NavManager.NavigateTo("/counter");
+    }
+}
