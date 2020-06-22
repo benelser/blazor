@@ -1,0 +1,35 @@
+@page "/family"
+
+
+@foreach (Person p in fam)
+{
+    <div>
+         <Person FirstName="@p.FirstName" LastName="@p.LastName" Age="@p.Age" />
+         <p>
+             @p.SayHello()
+         </p>
+         <div>
+             <button @onclick=@(() => p.CallMe() )>Call me</button>
+         </div>
+    </div>
+}
+
+
+@code{
+    
+    List<Person> fam;
+    protected override void OnInitialized()
+    {
+       MakeAPICall();
+    }
+
+    private void MakeAPICall()
+    {
+        fam = new List<Person>();
+        fam.Add(new Person("Benjamin", "Elser", 33));
+        fam.Add(new Person("Amanda", "Elser", 32));
+        fam.Add(new Person("Joe", "Bob", 22));
+        fam.Add(new Person("Suzzie", "Que", 13));
+    }
+}
+
