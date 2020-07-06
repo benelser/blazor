@@ -1,0 +1,191 @@
+@page "/cards"
+@using app.Models;
+
+<div>
+    <style>
+
+
+        body {
+        background-color: #EEEEEE;
+        }
+
+        .layout-margin-8 {
+        margin: 3% 8%;
+        }
+
+        .card-img-top-custom {
+        width: 50%;
+        margin: 0 auto;
+        }
+
+        .card-title {
+        text-align: center;
+        }
+
+        .card-shadow {
+        -webkit-box-shadow: 0px 0px 28px 14px rgba(232,232,232,1);
+        -moz-box-shadow: 0px 0px 28px 14px rgba(232,232,232,1);
+        box-shadow: 0px 0px 28px 14px rgba(232,232,232,1);
+        }
+
+        .card-deck {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        grid-gap: .5rem;
+        justify-content: space-around;
+        flex-flow: row wrap;
+        flex: auto;
+        align-items: center;
+        }
+
+        .card {
+        padding: 3% 1.5%;
+        border: none;
+        max-width: 800px;
+        flex-grow: 50;
+        }
+
+        @@media (min-width: 570px) {
+        .form-control {
+        width: 500px !important;
+        height: 50px;
+        }
+        }
+
+        .bg-blue {
+        background-color: #005EB8;
+        }
+
+    </style>
+    <!-- Search functionality -->
+    <nav class="navbar navbar-light justify-content-center mt-4">
+        <form class="form-inline">
+            <input class="form-control form-control-lg mr-sm-2" type="search" @bind="SortInput" @oninput="((e) => Test(e))" placeholder="Search" aria-label="Search" id="search">
+            <!-- <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button> -->
+        </form>
+        @{ var langs = new List<string>{ "name", "title", "team" }; }
+        <Dropdown TItem="string" OnSelected="@OnSelected" >
+        <InitialTip>Sort by</InitialTip>
+            <ChildContent>
+                <DropdownListItem Item="@langs[0]">Name</DropdownListItem>
+                <DropdownListItem Item="@langs[1]">Title</DropdownListItem>
+                <DropdownListItem Item="@langs[2]">Team</DropdownListItem>
+            </ChildContent>
+        </Dropdown>
+    </nav>
+
+    <!-- Cards -->
+    @if (string.IsNullOrEmpty(SortInput) && Sorted != true)
+    {
+        <div class="layout-margin-4 mt-4">
+        <div class="card-deck">
+            
+            @foreach (var item in items)
+            {
+                <div class="card card-shadow text-center">
+                    <div class="card-body">
+                        <h4 class="card-title">@item.Name</h4>
+                        <p class="card-text">@item.Title</p>
+                        <div class="dropdown-divider"></div>
+                        <p class="card-text"><small class="text-muted">@item.Team</small></p>
+                        <a href="#">
+                            <button type="button" class="btn btn-outline-primary">Email</button>
+                        </a>
+                    </div>
+                </div>
+            }
+            
+        </div>
+        </div>
+    }
+    else
+    {
+        <div class="layout-margin-4 mt-4">
+        <div class="card-deck">
+            
+            @foreach (var item in cardquery.ToArray())
+            {
+                <div class="card card-shadow text-center">
+                    <div class="card-body">
+                        <h4 class="card-title">@item.Name</h4>
+                        <p class="card-text">@item.Title</p>
+                        <div class="dropdown-divider"></div>
+                        <p class="card-text"><small class="text-muted">@item.Team</small></p>
+                        <a href="#">
+                            <button type="button" class="btn btn-outline-primary">Email</button>
+                        </a>
+                    </div>
+                </div>
+            }
+            
+        </div>
+        </div>
+    }
+
+</div>
+
+@code{
+
+
+    public string SortInput { get; set; } = "";
+    public bool Sorted { get; set; }
+    IList<Card> items = new List<Card>();
+    IEnumerable<Card> cardquery;
+    
+
+    protected override void OnInitialized()
+    {
+        items.Add(new Card("ben", "Manager", "ATEam"));
+        items.Add(new Card("joe", "super", "ATEam"));
+        items.Add(new Card("sue", "super", "BTEam"));
+        items.Add(new Card("amanda", "super", "BTEam"));
+        items.Add(new Card("tobby", "super", "BTEam"));
+        items.Add(new Card("Dan", "Diver", "ATEam"));
+        items.Add(new Card("ben", "turd", "BTEam"));
+        base.OnInitialized();
+        
+    }
+
+    protected void Test(ChangeEventArgs e)
+    {
+        SortInput = (string)e.Value;
+        Sorted = false;
+        cardquery =
+                from item in items
+                where item.Name.ToLower().Contains(SortInput.ToLower()) || item.Title.ToLower().Contains(SortInput.ToLower()) || item.Team.ToLower().Contains(SortInput.ToLower())
+                select item;
+    }
+
+    protected void OnSelected(string selection)
+    {
+        System.Console.WriteLine(selection);
+        Sorted = true;
+        switch (selection)
+        {
+            case "team": { 
+                cardquery =
+                from item in items
+                orderby item.Team
+                select item;
+                Console.WriteLine(cardquery.ToArray()[3].Name);
+                StateHasChanged();
+                break;
+            }
+            case "name": { 
+                cardquery =
+                from item in items
+                orderby item.Name
+                select item;
+                break;
+            }
+            case "title": { 
+                cardquery =
+                from item in items
+                orderby item.Title
+                select item;
+                break;
+            }
+           
+        }
+    }
+}
